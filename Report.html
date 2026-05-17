@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chinook Music Store — تقرير تحليل الأعمال</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #0d0f14;
+    --bg2: #13161d;
+    --bg3: #1a1e28;
+    --card: #1e2230;
+    --border: rgba(255,255,255,0.08);
+    --text: #f0f2f8;
+    --muted: #8892aa;
+    --accent: #6c63ff;
+    --accent2: #00c9a7;
+    --accent3: #ff6b6b;
+    --accent4: #ffd93d;
+    --accent5: #a29bfe;
+  }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    font-size: 15px;
+  }
+
+  /* HERO */
+  .hero {
+    background: linear-gradient(135deg, #0d0f14 0%, #1a1340 50%, #0d1a24 100%);
+    padding: 80px 40px 60px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    border-bottom: 1px solid var(--border);
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -80px; left: 50%; transform: translateX(-50%);
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(108,99,255,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-badge {
+    display: inline-block;
+    background: rgba(108,99,255,0.15);
+    color: #a29bfe;
+    border: 1px solid rgba(108,99,255,0.3);
+    padding: 6px 18px;
+    border-radius: 100px;
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+  }
+  .hero h1 {
+    font-size: clamp(28px, 5vw, 52px);
+    font-weight: 800;
+    letter-spacing: -1px;
+    margin-bottom: 16px;
+    background: linear-gradient(135deg, #fff 0%, #a29bfe 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .hero p {
+    color: var(--muted);
+    font-size: 17px;
+    max-width: 560px;
+    margin: 0 auto 32px;
+  }
+  .hero-meta {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    flex-wrap: wrap;
+  }
+  .hero-meta-item {
+    text-align: center;
+  }
+  .hero-meta-item .val {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--accent5);
+    display: block;
+  }
+  .hero-meta-item .lbl {
+    font-size: 12px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  /* NAV */
+  .nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(13,15,20,0.95);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 40px;
+    display: flex;
+    gap: 0;
+    overflow-x: auto;
+  }
+  .nav a {
+    color: var(--muted);
+    text-decoration: none;
+    padding: 14px 20px;
+    font-size: 13px;
+    white-space: nowrap;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+  }
+  .nav a:hover { color: var(--text); border-bottom-color: var(--accent); }
+
+  /* LAYOUT */
+  .container { max-width: 1100px; margin: 0 auto; padding: 0 40px; }
+  .section { padding: 64px 0; border-bottom: 1px solid var(--border); }
+  .section:last-child { border-bottom: none; }
+
+  .section-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    margin-bottom: 40px;
+  }
+  .section-icon {
+    width: 48px; height: 48px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+    margin-top: 4px;
+  }
+  .section-header h2 {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+  .section-header p {
+    color: var(--muted);
+    font-size: 15px;
+  }
+
+  /* CARDS */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+  }
+  .card-title {
+    font-size: 13px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+
+  /* METRIC CARDS */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+  .metric {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px 22px;
+    position: relative;
+    overflow: hidden;
+  }
+  .metric::before {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 80px; height: 80px;
+    border-radius: 0 0 0 80px;
+    opacity: 0.07;
+  }
+  .metric.blue::before { background: #6c63ff; }
+  .metric.teal::before { background: #00c9a7; }
+  .metric.orange::before { background: #ffd93d; }
+  .metric.red::before { background: #ff6b6b; }
+  .metric.purple::before { background: #a29bfe; }
+  .metric .label { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+  .metric .value {
+    font-size: 32px;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .metric.blue .value { color: #6c63ff; }
+  .metric.teal .value { color: #00c9a7; }
+  .metric.orange .value { color: #ffd93d; }
+  .metric.red .value { color: #ff6b6b; }
+  .metric.purple .value { color: #a29bfe; }
+  .metric .sub { font-size: 12px; color: var(--muted); }
+
+  /* GRIDS */
+  .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+  .grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+
+  /* INSIGHT BOX */
+  .insight {
+    background: rgba(108,99,255,0.06);
+    border: 1px solid rgba(108,99,255,0.2);
+    border-radius: 12px;
+    padding: 18px 22px;
+    margin-bottom: 20px;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+  .insight-icon { font-size: 20px; flex-shrink: 0; margin-top: 2px; }
+  .insight h4 { font-size: 14px; font-weight: 600; color: #a29bfe; margin-bottom: 4px; }
+  .insight p { font-size: 13.5px; color: var(--muted); line-height: 1.6; }
+
+  /* RECOMMENDATION */
+  .rec-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+  .rec {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 22px;
+    position: relative;
+  }
+  .rec-num {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 14px;
+  }
+  .rec h4 { font-size: 15px; font-weight: 600; margin-bottom: 8px; color: var(--text); }
+  .rec p { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+  /* TABLE */
+  .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  .data-table th {
+    text-align: right;
+    padding: 10px 14px;
+    color: var(--muted);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-bottom: 1px solid var(--border);
+  }
+  .data-table td {
+    padding: 11px 14px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    color: var(--text);
+  }
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table tr:hover td { background: rgba(255,255,255,0.03); }
+  .bar-cell { display: flex; align-items: center; gap: 10px; }
+  .bar-bg { flex: 1; height: 6px; background: rgba(255,255,255,0.07); border-radius: 3px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 3px; }
+
+  /* BADGE */
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .badge-gold { background: rgba(255,217,61,0.15); color: #ffd93d; }
+  .badge-green { background: rgba(0,201,167,0.15); color: #00c9a7; }
+  .badge-purple { background: rgba(108,99,255,0.15); color: #a29bfe; }
+  .badge-red { background: rgba(255,107,107,0.15); color: #ff6b6b; }
+
+  /* STAFF */
+  .staff-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+  .staff-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+    text-align: center;
+  }
+  .avatar {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    font-weight: 700;
+    margin: 0 auto 14px;
+  }
+  .staff-card h4 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .staff-card .revenue { font-size: 22px; font-weight: 800; color: var(--accent2); margin: 10px 0 4px; }
+  .staff-card .clients { font-size: 12px; color: var(--muted); }
+
+  /* SEASON TABLE */
+  .season-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+  .season-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+  }
+  .season-card .flag { font-size: 28px; margin-bottom: 10px; }
+  .season-card h4 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .season-card .peak { color: var(--accent4); font-size: 22px; font-weight: 700; margin: 8px 0 2px; }
+  .season-card p { font-size: 12px; color: var(--muted); }
+
+  /* FOOTER */
+  .footer {
+    background: var(--bg2);
+    border-top: 1px solid var(--border);
+    padding: 40px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 13px;
+  }
+  .footer strong { color: var(--text); }
+
+  /* CHART WRAPPER */
+  .chart-wrap { position: relative; width: 100%; }
+
+  @media (max-width: 600px) {
+    .hero { padding: 48px 20px 40px; }
+    .container { padding: 0 20px; }
+    .nav { padding: 0 20px; }
+    .hero-meta { gap: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">تحليل الأعمال · Data Analytics</div>
+  <h1>Chinook Music Store</h1>
+  <p>تقرير استراتيجي مبني على البيانات — من الأرقام إلى قرارات قابلة للتنفيذ</p>
+  <div class="hero-meta">
+    <div class="hero-meta-item">
+      <span class="val">$2,328</span>
+      <span class="lbl">إجمالي الإيرادات</span>
+    </div>
+    <div class="hero-meta-item">
+      <span class="val">412</span>
+      <span class="lbl">عميل</span>
+    </div>
+    <div class="hero-meta-item">
+      <span class="val">3,503</span>
+      <span class="lbl">تراك موسيقي</span>
+    </div>
+    <div class="hero-meta-item">
+      <span class="val">18</span>
+      <span class="lbl">دولة</span>
+    </div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav class="nav">
+  <a href="#geo">الجغرافيا</a>
+  <a href="#seasonal">الموسمية</a>
+  <a href="#content">المحتوى</a>
+  <a href="#genre">الأنواع</a>
+  <a href="#staff">الفريق</a>
+  <a href="#recs">التوصيات</a>
+</nav>
+
+<!-- SECTION 1: GEO -->
+<section class="section" id="geo">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-icon" style="background: rgba(108,99,255,0.12);">🌍</div>
+      <div>
+        <h2>تحليل الأسواق الجغرافية</h2>
+        <p>من أين تأتي الإيرادات — وأين الفرصة الحقيقية للنمو؟</p>
+      </div>
+    </div>
+
+    <div class="metrics">
+      <div class="metric blue">
+        <div class="label">الولايات المتحدة</div>
+        <div class="value">$523</div>
+        <div class="sub">13 عميل · أقوى سوق</div>
+      </div>
+      <div class="metric teal">
+        <div class="label">كندا</div>
+        <div class="value">$304</div>
+        <div class="sub">8 عملاء</div>
+      </div>
+      <div class="metric orange">
+        <div class="label">فرنسا</div>
+        <div class="value">$195</div>
+        <div class="sub">5 عملاء</div>
+      </div>
+      <div class="metric purple">
+        <div class="label">البرازيل</div>
+        <div class="value">$190</div>
+        <div class="sub">5 عملاء</div>
+      </div>
+      <div class="metric red">
+        <div class="label">ألمانيا</div>
+        <div class="value">$156</div>
+        <div class="sub">4 عملاء · نمو محتمل</div>
+      </div>
+    </div>
+
+    <div class="grid2" style="gap:20px; margin-bottom:24px;">
+      <div class="card">
+        <div class="card-title">الإيرادات حسب الدولة</div>
+        <div class="chart-wrap" style="height:320px;">
+          <canvas id="geoChart" role="img" aria-label="Bar chart showing revenue by country">Revenue by country data.</canvas>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">متوسط الفاتورة لكل دولة ($)</div>
+        <div class="chart-wrap" style="height:320px;">
+          <canvas id="avgChart" role="img" aria-label="Average invoice per country">Average invoice data.</canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="insight">
+      <div class="insight-icon">💡</div>
+      <div>
+        <h4>الاكتشاف الرئيسي — المشكلة ليست السعر</h4>
+        <p>متوسط الفاتورة في البرازيل وبلجيكا (~$5.4) قريب جداً من الأسواق الكبيرة. المشكلة ليست في رغبة العميل في الإنفاق — المشكلة في <strong style="color: #a29bfe;">عدد العملاء</strong>. الاستراتيجية إذن: Customer Acquisition وليس Price Optimization.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">جدول الأسواق التفصيلي</div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>الدولة</th>
+            <th>العملاء</th>
+            <th>الإيرادات</th>
+            <th>متوسط الفاتورة</th>
+            <th>الإمكانية</th>
+          </tr>
+        </thead>
+        <tbody id="geoTable"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 2: SEASONAL -->
+<section class="section" id="seasonal">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-icon" style="background: rgba(255,217,61,0.12);">📅</div>
+      <div>
+        <h2>الموسمية — متى تبيع؟</h2>
+        <p>توقيت الإنفاق يختلف من دولة لأخرى — التقويم التسويقي الواحد لا يكفي</p>
+      </div>
+    </div>
+
+    <div class="season-grid">
+      <div class="season-card">
+        <div class="flag">🇺🇸</div>
+        <h4>الولايات المتحدة</h4>
+        <div class="peak">سبتمبر</div>
+        <p>$62.52 · ذروة مرتبطة بموسم العودة للدراسة</p>
+      </div>
+      <div class="season-card">
+        <div class="flag">🇨🇦</div>
+        <h4>كندا</h4>
+        <div class="peak">يوليو</div>
+        <p>موسم الصيف والإجازات الطويلة</p>
+      </div>
+      <div class="season-card">
+        <div class="flag">🇧🇷</div>
+        <h4>البرازيل</h4>
+        <div class="peak">ديسمبر</div>
+        <p>$33.66 · موسم الأعياد والإجازات</p>
+      </div>
+    </div>
+
+    <div class="insight" style="margin-top: 24px; background: rgba(255,217,61,0.06); border-color: rgba(255,217,61,0.2);">
+      <div class="insight-icon">🎯</div>
+      <div>
+        <h4 style="color: #ffd93d;">التوصية: تقويم تسويقي مخصص لكل دولة</h4>
+        <p>بدلاً من ميزانية إعلانية موحدة، يجب تخصيص الإنفاق الإعلاني حسب الذروة لكل دولة. ميزانية البرازيل تُصرف في ديسمبر، وميزانية أمريكا في سبتمبر — هذا وحده يمكنه مضاعفة فاعلية التسويق.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 3: CONTENT -->
+<section class="section" id="content">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-icon" style="background: rgba(0,201,167,0.12);">🎵</div>
+      <div>
+        <h2>تحليل المحتوى والتراكات</h2>
+        <p>43% من التراكات لا تولّد أي دخل — وهذا ليس مشكلة، بل فرصة</p>
+      </div>
+    </div>
+
+    <div class="metrics">
+      <div class="metric teal">
+        <div class="label">إجمالي التراكات</div>
+        <div class="value">3,503</div>
+        <div class="sub">في قاعدة البيانات</div>
+      </div>
+      <div class="metric red">
+        <div class="label">تراكات بدون مبيعات</div>
+        <div class="value">1,519</div>
+        <div class="sub">43% من المحتوى</div>
+      </div>
+      <div class="metric orange">
+        <div class="label">أعلى مبيعات تراك</div>
+        <div class="value">×2</div>
+        <div class="sub">لا يوجد تراك مسيطر</div>
+      </div>
+      <div class="metric purple">
+        <div class="label">سعر الفيديو</div>
+        <div class="value">$3.98</div>
+        <div class="sub">ضعف سعر الصوت $1.98</div>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <div class="card-title">أداء الفنانين — الكمية vs الكفاءة</div>
+        <div class="chart-wrap" style="height:300px;">
+          <canvas id="artistChart" role="img" aria-label="Artist performance bubble chart">Artist performance data.</canvas>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">نوع المحتوى والإيرادات</div>
+        <div class="chart-wrap" style="height:300px;">
+          <canvas id="mediaChart" role="img" aria-label="Revenue by media type">Media type revenue data.</canvas>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top: 24px;" class="grid2">
+      <div class="insight" style="margin-bottom:0; background: rgba(0,201,167,0.06); border-color: rgba(0,201,167,0.2);">
+        <div class="insight-icon">🎬</div>
+        <div>
+          <h4 style="color: #00c9a7;">الفيديو = ضعف الربح</h4>
+          <p>8 من أعلى 10 مبيعات هي فيديوهات. سعرها ($3.98) ضعف الصوت ($1.98). الاستثمار في المحتوى المرئي يرفع الأرباح بأسرع طريق.</p>
+        </div>
+      </div>
+      <div class="insight" style="margin-bottom:0; background: rgba(255,107,107,0.06); border-color: rgba(255,107,107,0.2);">
+        <div class="insight-icon">🔁</div>
+        <div>
+          <h4 style="color: #ff6b6b;">حوّل الخسارة لربح</h4>
+          <p>1,519 تراك غير مباع يمثل تكلفة بلا عائد. الحل: Playlists ذكية + Recommendations مخصصة لتحويلها لمصدر دخل جديد.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 4: GENRES -->
+<section class="section" id="genre">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-icon" style="background: rgba(255,107,107,0.12);">🎸</div>
+      <div>
+        <h2>أنواع الموسيقى والإيرادات</h2>
+        <p>Rock يسيطر — لكن TV Shows له قصة مختلفة</p>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom: 24px;">
+      <div class="card-title">المبيعات والإيرادات حسب النوع</div>
+      <div class="chart-wrap" style="height:360px;">
+        <canvas id="genreChart" role="img" aria-label="Sales and revenue by music genre">Genre data.</canvas>
+      </div>
+    </div>
+
+    <div class="grid3">
+      <div class="card" style="text-align:center;">
+        <div style="font-size:36px; margin-bottom:8px;">🎸</div>
+        <div class="badge badge-gold" style="margin-bottom:10px;">المسيطر الأول</div>
+        <h4 style="font-size:18px; font-weight:700;">Rock</h4>
+        <div style="font-size:28px; font-weight:800; color:#ffd93d; margin:8px 0;">$826</div>
+        <p style="font-size:12px; color:var(--muted);">835 وحدة مباعة</p>
+      </div>
+      <div class="card" style="text-align:center;">
+        <div style="font-size:36px; margin-bottom:8px;">💃</div>
+        <div class="badge badge-purple" style="margin-bottom:10px;">المربع الذهبي</div>
+        <h4 style="font-size:18px; font-weight:700;">Latin</h4>
+        <div style="font-size:28px; font-weight:800; color:#a29bfe; margin:8px 0;">$382</div>
+        <p style="font-size:12px; color:var(--muted);">386 وحدة مباعة</p>
+      </div>
+      <div class="card" style="text-align:center;">
+        <div style="font-size:36px; margin-bottom:8px;">📺</div>
+        <div class="badge badge-green" style="margin-bottom:10px;">أعلى سعر للوحدة</div>
+        <h4 style="font-size:18px; font-weight:700;">TV Shows</h4>
+        <div style="font-size:28px; font-weight:800; color:#00c9a7; margin:8px 0;">$93</div>
+        <p style="font-size:12px; color:var(--muted);">47 وحدة فقط</p>
+      </div>
+    </div>
+
+    <div class="insight" style="margin-top:24px; background: rgba(255,107,107,0.06); border-color: rgba(255,107,107,0.2);">
+      <div class="insight-icon">📺</div>
+      <div>
+        <h4 style="color: #ff6b6b;">Jazz vs TV Shows — الكمية ≠ الربح</h4>
+        <p>Jazz يبيع أكثر من TV Shows عدداً، لكن TV Shows تحقق إيرادات أعلى بسبب سعرها المرتفع. الدرس: ليس دائماً الأكثر مبيعاً هو الأكثر ربحية — اقرأ الهامش، لا الكمية.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 5: STAFF -->
+<section class="section" id="staff">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-icon" style="background: rgba(162,155,254,0.12);">👥</div>
+      <div>
+        <h2>أداء فريق المبيعات</h2>
+        <p>توزيع عادل وعمليات مستقرة — النظام لا يعتمد على شخص واحد</p>
+      </div>
+    </div>
+
+    <div class="staff-grid">
+      <div class="staff-card">
+        <div class="avatar" style="background: rgba(255,217,61,0.15); color:#ffd93d;">JP</div>
+        <h4>Jane Peacock</h4>
+        <div class="badge badge-gold">الأعلى مبيعاً</div>
+        <div class="revenue">$833</div>
+        <div class="clients">146 عميل</div>
+      </div>
+      <div class="staff-card">
+        <div class="avatar" style="background: rgba(108,99,255,0.15); color:#a29bfe;">MR</div>
+        <h4>Margaret Roberts</h4>
+        <div class="badge badge-purple">المتميزة</div>
+        <div class="revenue">$776</div>
+        <div class="clients">140 عميل</div>
+      </div>
+      <div class="staff-card">
+        <div class="avatar" style="background: rgba(0,201,167,0.15); color:#00c9a7;">SP</div>
+        <h4>Steve Park</h4>
+        <div class="badge badge-green">المتوازن</div>
+        <div class="revenue">$720</div>
+        <div class="clients">126 عميل</div>
+      </div>
+    </div>
+
+    <div class="insight" style="margin-top:24px;">
+      <div class="insight-icon">✅</div>
+      <div>
+        <h4>النظام مستقر — لا نقطة فشل واحدة</h4>
+        <p>أداء الثلاثة متقارب جداً (بين 126 و146 عميلاً لكل منهم). هذا يعني أن العمل موزع بشكل صحي، والمتجر لا يعتمد على موظف واحد. حتى لو غاب أحدهم، العمل يستمر بشكل طبيعي.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 6: RECOMMENDATIONS -->
+<section class="section" id="recs">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-icon" style="background: rgba(0,201,167,0.12);">🚀</div>
+      <div>
+        <h2>الاستراتيجية والتوصيات</h2>
+        <p>من التحليل إلى الخطة — 5 قرارات واضحة وقابلة للتنفيذ</p>
+      </div>
+    </div>
+
+    <div class="rec-grid">
+      <div class="rec">
+        <div class="rec-num" style="background: rgba(108,99,255,0.15); color:#a29bfe;">١</div>
+        <h4>زيادة عدد العملاء</h4>
+        <p>استراتيجية النمو الأولى هي Customer Acquisition في الأسواق الصغيرة ذات متوسط فاتورة مرتفع — وليس رفع الأسعار.</p>
+      </div>
+      <div class="rec">
+        <div class="rec-num" style="background: rgba(255,217,61,0.15); color:#ffd93d;">٢</div>
+        <h4>تقويم تسويقي مخصص</h4>
+        <p>صرف ميزانية الإعلان في وقت الذروة لكل دولة: سبتمبر لأمريكا، يوليو لكندا، ديسمبر للبرازيل.</p>
+      </div>
+      <div class="rec">
+        <div class="rec-num" style="background: rgba(0,201,167,0.15); color:#00c9a7;">٣</div>
+        <h4>الاستثمار في الفيديو</h4>
+        <p>المحتوى المرئي يحقق ضعف إيرادات المحتوى الصوتي. التوجه نحو Music Videos و TV Shows يرفع هامش الربح.</p>
+      </div>
+      <div class="rec">
+        <div class="rec-num" style="background: rgba(255,107,107,0.15); color:#ff6b6b;">٤</div>
+        <h4>تفعيل التراكات الراكدة</h4>
+        <p>1,519 تراك غير مباع = تكلفة بلا عائد. Playlists ذكية وتوصيات مخصصة تحولها لمصدر دخل.</p>
+      </div>
+      <div class="rec">
+        <div class="rec-num" style="background: rgba(162,155,254,0.15); color:#a29bfe;">٥</div>
+        <h4>الرهان على التنوع لا التريند</h4>
+        <p>لا توجد أغنية واحدة مسيطرة — وهذا قوة. الاستقرار يأتي من تنوع المحتوى. ركّز على تحسين تجربة الاكتشاف لا على تريند واحد.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <p>تقرير تحليل الأعمال · <strong>Chinook Music Store</strong></p>
+  <p style="margin-top:8px;">إعداد: <strong>Mahmoud Elafandy</strong> &amp; <strong>Ahmed Elkahky</strong></p>
+</footer>
+
+<script>
+const geoData = [
+  { country: 'الولايات المتحدة', clients: 13, revenue: 523, avg: 5.75, potential: 'high' },
+  { country: 'كندا', clients: 8, revenue: 304, avg: 5.43, potential: 'high' },
+  { country: 'فرنسا', clients: 5, revenue: 195, avg: 5.57, potential: 'medium' },
+  { country: 'البرازيل', clients: 5, revenue: 190, avg: 5.43, potential: 'medium' },
+  { country: 'ألمانيا', clients: 4, revenue: 156, avg: 5.59, potential: 'high' },
+  { country: 'المملكة المتحدة', clients: 3, revenue: 113, avg: 5.37, potential: 'medium' },
+  { country: 'البرتغال', clients: 2, revenue: 77, avg: 5.51, potential: 'medium' },
+  { country: 'الهند', clients: 2, revenue: 75, avg: 5.78, potential: 'high' },
+];
+
+const tbody = document.getElementById('geoTable');
+geoData.forEach(d => {
+  const maxRev = 523;
+  const pct = (d.revenue / maxRev * 100).toFixed(0);
+  const badgeMap = { high: 'badge-gold', medium: 'badge-purple', low: 'badge-red' };
+  const labelMap = { high: 'نمو عالي', medium: 'نمو متوسط', low: 'ضعيف' };
+  tbody.innerHTML += `<tr>
+    <td>${d.country}</td>
+    <td>${d.clients}</td>
+    <td>
+      <div class="bar-cell">
+        <span>$${d.revenue}</span>
+        <div class="bar-bg"><div class="bar-fill" style="width:${pct}%; background: #6c63ff;"></div></div>
+      </div>
+    </td>
+    <td>$${d.avg.toFixed(2)}</td>
+    <td><span class="badge ${badgeMap[d.potential]}">${labelMap[d.potential]}</span></td>
+  </tr>`;
+});
+
+const chartDefaults = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: { legend: { display: false }, tooltip: { backgroundColor: '#1e2230', titleColor: '#f0f2f8', bodyColor: '#8892aa', borderColor: '#ffffff15', borderWidth: 1 } }
+};
+
+new Chart(document.getElementById('geoChart'), {
+  type: 'bar',
+  data: {
+    labels: ['USA','Canada','France','Brazil','Germany','UK','Portugal','India'],
+    datasets: [{ data: [523,304,195,190,156,113,77,75], backgroundColor: '#6c63ff99', borderColor: '#6c63ff', borderWidth: 1.5, borderRadius: 6 }]
+  },
+  options: { ...chartDefaults, scales: { x: { ticks: { color: '#8892aa', font: { size: 11 } }, grid: { color: '#ffffff08' } }, y: { ticks: { color: '#8892aa', font: { size: 11 }, callback: v => '$' + v }, grid: { color: '#ffffff08' } } } }
+});
+
+new Chart(document.getElementById('avgChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Chile','India','Germany','USA','France','Brazil','UK','Portugal'],
+    datasets: [{ data: [6.66, 5.78, 5.59, 5.75, 5.57, 5.43, 5.37, 5.51], backgroundColor: '#00c9a799', borderColor: '#00c9a7', borderWidth: 1.5, borderRadius: 6 }]
+  },
+  options: { ...chartDefaults, scales: { x: { ticks: { color: '#8892aa', font: { size: 11 } }, grid: { color: '#ffffff08' } }, y: { min: 5, ticks: { color: '#8892aa', font: { size: 11 }, callback: v => '$' + v.toFixed(2) }, grid: { color: '#ffffff08' } } } }
+});
+
+new Chart(document.getElementById('artistChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Iron Maiden','U2','Metallica','Led Zeppelin','The Office'],
+    datasets: [
+      { label: 'التراكات', data: [213, 135, 112, 114, 22], backgroundColor: '#6c63ff66', borderColor: '#6c63ff', borderWidth: 1.5, borderRadius: 4 },
+      { label: 'الإيرادات ($)', data: [138, 135, 120, 110, 98], backgroundColor: '#00c9a766', borderColor: '#00c9a7', borderWidth: 1.5, borderRadius: 4 }
+    ]
+  },
+  options: { ...chartDefaults, plugins: { ...chartDefaults.plugins, legend: { display: true, labels: { color: '#8892aa', font: { size: 11 }, boxWidth: 12, boxHeight: 12 } } }, scales: { x: { ticks: { color: '#8892aa', font: { size: 11 } }, grid: { color: '#ffffff08' } }, y: { ticks: { color: '#8892aa', font: { size: 11 } }, grid: { color: '#ffffff08' } } } }
+});
+
+new Chart(document.getElementById('mediaChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['MPEG Audio ($1.98)', 'MPEG Video ($3.98)', 'AAC Audio', 'Protected Audio'],
+    datasets: [{ data: [45, 40, 10, 5], backgroundColor: ['#6c63ff', '#00c9a7', '#ffd93d', '#ff6b6b'], borderWidth: 0 }]
+  },
+  options: { ...chartDefaults, plugins: { ...chartDefaults.plugins, legend: { display: true, position: 'bottom', labels: { color: '#8892aa', font: { size: 11 }, boxWidth: 12, padding: 12 } } }, cutout: '60%' }
+});
+
+new Chart(document.getElementById('genreChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Rock','Latin','Metal','Alt & Funk','TV Shows','Jazz','Blues','Drama','R&B'],
+    datasets: [
+      { label: 'الوحدات المباعة', data: [835, 386, 264, 244, 47, 80, 61, 29, 41], backgroundColor: '#6c63ff88', borderColor: '#6c63ff', borderWidth: 1.5, borderRadius: 4, yAxisID: 'y' },
+      { label: 'الإيرادات ($)', data: [826, 382, 261, 241, 93, 79, 60, 57, 40], backgroundColor: '#00c9a788', borderColor: '#00c9a7', borderWidth: 1.5, borderRadius: 4, yAxisID: 'y' }
+    ]
+  },
+  options: { ...chartDefaults, plugins: { ...chartDefaults.plugins, legend: { display: true, labels: { color: '#8892aa', font: { size: 11 }, boxWidth: 12 } } }, scales: { x: { ticks: { color: '#8892aa', font: { size: 11 } }, grid: { color: '#ffffff08' } }, y: { ticks: { color: '#8892aa', font: { size: 11 } }, grid: { color: '#ffffff08' } } } }
+});
+</script>
+</body>
+</html>
